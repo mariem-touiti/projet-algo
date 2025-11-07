@@ -183,4 +183,64 @@ if st.button("🚀 Lancer l’algorithme"):
     fig = plot_villes(villes, chemin)
     st.pyplot(fig)
 
+# ===============================
+# 🎀 STYLE GÉNÉRAL DE LA PAGE
+# ===============================
+st.markdown("""
+    <style>
+    /* 🌸 Dégradé de fond pour toute la page */
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(to bottom right, #ffe6f0, #f3d1ff);
+    }
+
+    /* 🎨 Titres principaux */
+    h1 {
+        color: #a64ca6 !important;
+        text-align: center;
+        font-family: 'Trebuchet MS', sans-serif;
+        font-weight: 800;
+        text-shadow: 1px 1px 3px #ffffff;
+    }
+
+    h2, h3 {
+        color: #b266ff !important;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+    }
+
+    /* ✨ Boutons */
+    div.stButton > button {
+        background-color: #cc66ff;
+        color: white;
+        border-radius: 12px;
+        height: 3em;
+        width: 100%;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    div.stButton > button:hover {
+        background-color: #ff66b2;
+        color: #fff;
+        transform: scale(1.05);
+    }
+
+    /* 🩷 Encadré des DataFrames */
+    .stDataFrame {
+        border: 2px solid #cc99ff;
+        border-radius: 10px;
+        background-color: #fff8ff;
+    }
+
+    /* 💬 Texte */
+    p, label {
+        color: #4a004a !important;
+        font-size: 16px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
+
 
