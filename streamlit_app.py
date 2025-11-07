@@ -111,25 +111,35 @@ def algo_genetique(matrice, population_size=50, generations=100, mutation_rate=0
 #  🎨 Visualisation
 # ===============================
 def plot_villes(villes, chemin):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(facecolor="#ffe6f0")  # 🎨 Fond rose clair
+
+    # Coordonnées du chemin
     x = [villes[i][0] for i in chemin]
     y = [villes[i][1] for i in chemin]
 
-    # ➤ On ne ferme plus le cycle (pas de retour à la ville 0)
-    ax.plot(x, y, 'bo-', linewidth=2)
+    # ➤ Tracé du trajet en mauve
+    ax.plot(x, y, color="#b266ff", marker='o', markersize=6, linewidth=2.5, label='Trajet optimal')
 
     # Labels des villes
     for i, (xv, yv) in enumerate(villes):
-        ax.text(xv + 0.2, yv + 0.2, f"Ville {i}", fontsize=9, color="red")
+        ax.text(xv + 0.3, yv + 0.3, f"Ville {i}", fontsize=9, color="#800080")  # violet foncé
 
-    # Marquer le départ et l’arrivée
-    ax.scatter(villes[chemin[0]][0], villes[chemin[0]][1], color='green', s=100, label='Départ')
-    ax.scatter(villes[chemin[-1]][0], villes[chemin[-1]][1], color='orange', s=100, label='Arrivée')
+    # 🔹 Départ en rose foncé
+    ax.scatter(villes[chemin[0]][0], villes[chemin[0]][1],
+               color='#ff4da6', s=120, edgecolors='black', label='Départ')
 
+    # 🔹 Arrivée en violet foncé
+    ax.scatter(villes[chemin[-1]][0], villes[chemin[-1]][1],
+               color='#9933ff', s=120, edgecolors='black', label='Arrivée')
+
+    # Autres réglages esthétiques
     ax.legend()
-    ax.set_title("Visualisation du chemin optimal (trajet non cyclique)")
-    ax.grid(True)
+    ax.set_title("💜 Chemin optimal (trajet non cyclique)", color="#660066", fontsize=12)
+    ax.grid(True, linestyle='--', alpha=0.4)
+    ax.set_facecolor("#ffe6f0")  # fond intérieur du graphique rose clair
+
     return fig
+
 
 # ===============================
 #  🌍 Interface Streamlit
@@ -172,4 +182,5 @@ if st.button("🚀 Lancer l’algorithme"):
     # --- Visualisation ---
     fig = plot_villes(villes, chemin)
     st.pyplot(fig)
+
 
