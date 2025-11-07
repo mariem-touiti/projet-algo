@@ -1,5 +1,10 @@
+import streamlit as st
 import random
-import math
+import matplotlib.pyplot as plt
+
+# ======================
+# Fonctions de base
+# ======================
 
 def calculer_distance_totale(solution, matrice_distances):
     """Calcule la distance totale d'une solution (route complète)"""
@@ -66,18 +71,6 @@ def mutation_echange(individu, taux_mutation):
 
 def algorithme_genetique(matrice_distances, taille_population, nombre_generations,
                         taux_mutation, taux_croisement, elitisme=True):
-    """
-    Algorithme Génétique pour le problème du voyageur de commerce
-    
-    Paramètres:
-    - matrice_distances: matrice des distances entre villes
-    - taille_population: nombre d'individus dans la population
-    - nombre_generations: nombre de générations à exécuter
-    - taux_mutation: probabilité de mutation
-    - taux_croisement: probabilité de croisement
-    - elitisme: si True, garde le meilleur individu à chaque génération
-    """
-    
     nombre_villes = len(matrice_distances)
     population = creer_population_initiale(taille_population, nombre_villes)
     
@@ -87,36 +80,17 @@ def algorithme_genetique(matrice_distances, taille_population, nombre_generation
     historique_distances = []
     historique_meilleures = []
     
-    print(f"{'='*60}")
-    print(f"Démarrage de l'Algorithme Génétique")
-    print(f"{'='*60}")
-    print(f"Taille de la population: {taille_population}")
-    print(f"Nombre de générations: {nombre_generations}")
-    print(f"Taux de mutation: {taux_mutation}")
-    print(f"Taux de croisement: {taux_croisement}")
-    print(f"{'='*60}\n")
-    
     for generation in range(nombre_generations):
         fitnesses = [calculer_fitness(ind, matrice_distances) for ind in population]
-        
         meilleur_idx = max(range(len(population)), key=lambda i: fitnesses[i])
         distance_generation = calculer_distance_totale(population[meilleur_idx], matrice_distances)
         
         if distance_generation < meilleure_distance:
             meilleure_distance = distance_generation
             meilleure_solution = population[meilleur_idx][:]
-            print(f"Génération {generation}: Nouvelle meilleure solution trouvée!")
-            print(f"  Distance: {meilleure_distance}")
         
         historique_distances.append(distance_generation)
         historique_meilleures.append(meilleure_distance)
-        
-        if generation % 100 == 0:
-            distance_moyenne = sum(1/f for f in fitnesses) / len(fitnesses)
-            print(f"Génération {generation}: "
-                  f"Meilleure={meilleure_distance}, "
-                  f"Génération actuelle={distance_generation:.2f}, "
-                  f"Moyenne={distance_moyenne:.2f}")
         
         nouvelle_population = []
         
@@ -124,7 +98,6 @@ def algorithme_genetique(matrice_distances, taille_population, nombre_generation
             nouvelle_population.append(population[meilleur_idx][:])
         
         while len(nouvelle_population) < taille_population:
-            
             parent1 = selection_tournoi(population, fitnesses)
             parent2 = selection_tournoi(population, fitnesses)
             
@@ -134,18 +107,28 @@ def algorithme_genetique(matrice_distances, taille_population, nombre_generation
                 enfant = parent1[:]
             
             enfant = mutation_echange(enfant, taux_mutation)
-            
             nouvelle_population.append(enfant)
         
         population = nouvelle_population
     
-    print(f"\n{'='*60}")
-    print(f"Fin de l'Algorithme Génétique")
-    print(f"{'='*60}")
-    print(f"Nombre total de générations: {nombre_generations}")
-    
     return meilleure_solution, meilleure_distance, historique_distances, historique_meilleures
 
+
+# ======================
+# Interface Streamlit
+# ======================
+
+st.title("🧬 Algorithme Génétique - Problème du Voyageur de Commerce (TSP)")
+
+st.sidebar.header("⚙️ Paramètres de l'algorithme")
+
+taille_population = st.sidebar.slider("Taille de la population", 10, 300, 100)
+nombre_generations = st.sidebar.slider("Nombre de générations", 100, 2000, 500)
+taux_mutation = st.sidebar.slider("Taux de mutation", 0.0, 1.0, 0.2)
+taux_croisement = st.sidebar.slider("Taux de croisement", 0.0, 1.0, 0.8)
+elitisme = st.sidebar.checkbox("Activer l'élitisme", True)
+
+st.write("### 🗺️ Matrice de distances (entre 10 villes)")
 
 matrice_distances = [
     [0, 2, 2, 7, 15, 2, 5, 7, 6, 5],
@@ -160,22 +143,49 @@ matrice_distances = [
     [5, 2, 3, 4, 7, 10, 3, 10, 15, 0]
 ]
 
-taille_population = 100
-nombre_generations = 500
-taux_mutation = 0.2
-taux_croisement = 0.8
+st.table(matrice_distances)
 
-meilleure_solution, meilleure_distance, historique_distances, historique_meilleures = \
-    algorithme_genetique(matrice_distances,
-                        taille_population,
-                        nombre_generations,
-                        taux_mutation,
-                        taux_croisement,
-                        elitisme=True)
+if st.button("🚀 Lancer l'algorithme génétique"):
+    st.write("### ⏳ Exécution en cours...")
 
-print(f"\n{'='*60}")
-print(f"RÉSULTAT FINAL")
-print(f"{'='*60}")
-print(f"Meilleure solution trouvée (Algorithme Génétique): {meilleure_solution}")
-print(f"Distance minimale: {meilleure_distance}")
-print(f"{'='*60}")
+    meilleure_solution, meilleure_distance, historique_distances, historique_meilleures = \
+        algorithme_genetique(matrice_distances,
+                            taille_population,
+                            nombre_generations,
+                            taux_mutation,
+                            taux_croisement,
+                            elitisme)
+
+    st.success("✅ Exécution terminée !")
+
+    st.write("### 📊 Résultats")
+    st.write(f"**Meilleure distance trouvée :** {meilleure_distance}")
+    st.write(f"**Ordre des villes :** {meilleure_solution}")
+
+    # === Graphique évolution ===
+    fig, ax = plt.subplots()
+    ax.plot(historique_distances, label="Distance génération")
+    ax.plot(historique_meilleures, label="Meilleure distance", linestyle="--")
+    ax.set_xlabel("Générations")
+    ax.set_ylabel("Distance")
+    ax.set_title("Évolution des distances")
+    ax.legend()
+    st.pyplot(fig)
+
+    # === Visualisation du trajet ===
+    st.write("### 🧭 Visualisation du chemin optimal")
+    nb_villes = len(meilleure_solution)
+    coords = {i: (random.random(), random.random()) for i in range(nb_villes)}
+
+    fig2, ax2 = plt.subplots()
+    for i in range(nb_villes):
+        ville_actuelle = meilleure_solution[i]
+        ville_suivante = meilleure_solution[(i + 1) % nb_villes]
+        x1, y1 = coords[ville_actuelle]
+        x2, y2 = coords[ville_suivante]
+        ax2.plot([x1, x2], [y1, y2], "bo-")
+        ax2.text(x1, y1, str(ville_actuelle), fontsize=10, color="red")
+    ax2.set_title("Chemin optimal entre les villes (positions aléatoires)")
+    st.pyplot(fig2)
+
+st.info("💡 Ajuste les paramètres dans la barre latérale, puis clique sur **Lancer l'algorithme génétique**.")
