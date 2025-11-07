@@ -183,6 +183,22 @@ if st.button("🚀 Lancer l’algorithme"):
     fig = plot_villes(villes, chemin)
     st.pyplot(fig)
 
+def calculer_distance_totale(chemin, matrice):
+    """Calcule la distance totale du chemin donné"""
+    distance = 0
+    for i in range(len(chemin) - 1):
+        distance += matrice[chemin[i]][chemin[i + 1]]
+    distance += matrice[chemin[-1]][chemin[0]]  # Retour à la ville de départ
+    return distance
+# --- Calculer la distance totale ---
+distance_totale = calculer_distance_totale(chemin, matrice)
+
+# --- Résultats ---
+st.success(f"✅ Chemin trouvé : {chemin}")
+st.info(f"💜 Distance totale du chemin : {distance_totale:.2f}")
+st.info(f"⏱ Temps d'exécution : {execution_time:.4f} secondes")
+
+
 # ===============================
 # 🎀 STYLE GÉNÉRAL DE LA PAGE
 # ===============================
@@ -240,6 +256,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 
