@@ -1,0 +1,168 @@
+import random
+from collections import deque
+
+def calculer_distance_totale(solution, matrice_distances):
+    """Calcule la distance totale d'une solution (route complète)"""
+    distance_totale = 0
+    for i in range(len(solution) - 1):
+        distance_totale += matrice_distances[solution[i]][solution[i + 1]]
+    distance_totale += matrice_distances[solution[-1]][solution[0]]
+    return distance_totale
+
+
+def generer_voisinage(solution):
+    """Génère tous les voisins possibles par échange de deux villes (2-opt)"""
+    voisins = []
+    n = len(solution)
+    
+    for i in range(n - 1):
+        for j in range(i + 1, n):
+            voisin = solution[:]
+            voisin[i], voisin[j] = voisin[j], voisin[i]
+            voisins.append((voisin, (i, j)))  # (solution, mouvement)
+    
+    return voisins
+
+
+def est_tabou(mouvement, liste_tabou):
+    """Vérifie si un mouvement est dans la liste tabou"""
+    return mouvement in liste_tabou or (mouvement[1], mouvement[0]) in liste_tabou
+
+
+def recherche_tabou(matrice_distances, taille_liste_tabou, nombre_iterations, 
+                    taille_voisinage_max=50):
+    """
+    Algorithme de Recherche Tabou pour le problème du voyageur de commerce
+    
+    Paramètres:
+    - matrice_distances: matrice des distances entre villes
+    - taille_liste_tabou: nombre de mouvements à garder en mémoire
+    - nombre_iterations: nombre d'itérations à effectuer
+    - taille_voisinage_max: limite du nombre de voisins explorés (pour performance)
+    """
+    
+    nombre_villes = len(matrice_distances)
+    
+    solution_actuelle = list(range(nombre_villes))
+    random.shuffle(solution_actuelle)
+    distance_actuelle = calculer_distance_totale(solution_actuelle, matrice_distances)
+    
+    meilleure_solution = solution_actuelle[:]
+    meilleure_distance = distance_actuelle
+    
+    liste_tabou = deque(maxlen=taille_liste_tabou)
+    
+    historique_distances = []
+    historique_meilleures = []
+    iterations_sans_amelioration = 0
+    
+    print(f"{'='*60}")
+    print(f"Démarrage de la Recherche Tabou")
+    print(f"{'='*60}")
+    print(f"Solution initiale: {solution_actuelle}")
+    print(f"Distance initiale: {distance_actuelle}")
+    print(f"Taille de la liste tabou: {taille_liste_tabou}")
+    print(f"Nombre d'itérations: {nombre_iterations}")
+    print(f"{'='*60}\n")
+    
+    for iteration in range(nombre_iterations):
+        voisins = generer_voisinage(solution_actuelle)
+        
+        if len(voisins) > taille_voisinage_max:
+            voisins = random.sample(voisins, taille_voisinage_max)
+        
+        meilleur_voisin = None
+        meilleur_mouvement = None
+        meilleure_distance_voisin = float('inf')
+        meilleur_voisin_tabou = None
+        meilleure_distance_tabou = float('inf')
+        
+        for voisin, mouvement in voisins:
+            distance_voisin = calculer_distance_totale(voisin, matrice_distances)
+            
+            if not est_tabou(mouvement, liste_tabou):
+                if distance_voisin < meilleure_distance_voisin:
+                    meilleure_distance_voisin = distance_voisin
+                    meilleur_voisin = voisin
+                    meilleur_mouvement = mouvement
+            else:
+                if distance_voisin < meilleure_distance_tabou:
+                    meilleure_distance_tabou = distance_voisin
+                    meilleur_voisin_tabou = voisin
+                    mouvement_tabou = mouvement
+        
+        if meilleure_distance_tabou < meilleure_distance:
+            solution_actuelle = meilleur_voisin_tabou
+            distance_actuelle = meilleure_distance_tabou
+            liste_tabou.append(mouvement_tabou)
+            print(f"Itération {iteration}: Critère d'aspiration activé!")
+            print(f"  Nouvelle meilleure distance: {meilleure_distance_tabou}")
+        elif meilleur_voisin is not None:
+            solution_actuelle = meilleur_voisin
+            distance_actuelle = meilleure_distance_voisin
+            liste_tabou.append(meilleur_mouvement)
+        else:
+            print(f"Itération {iteration}: Aucun voisin disponible!")
+            break
+        
+        if distance_actuelle < meilleure_distance:
+            meilleure_solution = solution_actuelle[:]
+            meilleure_distance = distance_actuelle
+            iterations_sans_amelioration = 0
+            print(f"Itération {iteration}: Nouvelle meilleure solution trouvée!")
+            print(f"  Distance: {meilleure_distance}")
+        else:
+            iterations_sans_amelioration += 1
+        
+        historique_distances.append(distance_actuelle)
+        historique_meilleures.append(meilleure_distance)
+        
+        if iteration % 100 == 0:
+            print(f"Itération {iteration}: "
+                  f"Distance actuelle={distance_actuelle}, "
+                  f"Meilleure={meilleure_distance}, "
+                  f"Taille liste tabou={len(liste_tabou)}")
+        
+        if iterations_sans_amelioration > nombre_iterations // 5:
+            print(f"\nArrêt anticipé après {iteration} itérations")
+            print(f"(Pas d'amélioration depuis {iterations_sans_amelioration} itérations)")
+            break
+    
+    print(f"\n{'='*60}")
+    print(f"Fin de la Recherche Tabou")
+    print(f"{'='*60}")
+    print(f"Nombre d'itérations effectuées: {iteration + 1}")
+    print(f"Taille finale de la liste tabou: {len(liste_tabou)}")
+    
+    return meilleure_solution, meilleure_distance, historique_distances, historique_meilleures
+
+
+matrice_distances = [
+    [0, 2, 2, 7, 15, 2, 5, 7, 6, 5],
+    [2, 0, 10, 4, 7, 3, 7, 15, 8, 2],
+    [2, 10, 0, 1, 4, 3, 3, 4, 2, 3],
+    [7, 4, 1, 0, 2, 15, 7, 7, 5, 4],
+    [7, 10, 4, 2, 0, 7, 3, 2, 2, 7],
+    [2, 3, 3, 7, 7, 0, 1, 7, 2, 10],
+    [5, 7, 3, 7, 3, 1, 0, 2, 1, 3],
+    [7, 7, 4, 7, 2, 7, 2, 0, 1, 10],
+    [6, 8, 2, 5, 2, 2, 1, 1, 0, 15],
+    [5, 2, 3, 4, 7, 10, 3, 10, 15, 0]
+]
+
+taille_liste_tabou = 20
+nombre_iterations = 1000
+taille_voisinage_max = 50
+
+meilleure_solution, meilleure_distance, historique_distances, historique_meilleures = \
+    recherche_tabou(matrice_distances,
+                    taille_liste_tabou,
+                    nombre_iterations,
+                    taille_voisinage_max)
+
+print(f"\n{'='*60}")
+print(f"RÉSULTAT FINAL")
+print(f"{'='*60}")
+print(f"Meilleure solution trouvée (Recherche Tabou): {meilleure_solution}")
+print(f"Distance minimale: {meilleure_distance}")
+print(f"{'='*60}")
