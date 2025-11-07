@@ -144,7 +144,7 @@ def plot_villes(villes, chemin):
 # ===============================
 #  🌍 Interface Streamlit
 # ===============================
-st.title("🌐 Optimisation combinatoire - Visualisation des algorithmes")
+st.title(" Optimisation combinatoire - Visualisation des algorithmes")
 st.markdown("""
 Choisissez un *algorithme d’optimisation* et observez comment il trouve le chemin optimal entre plusieurs villes.
 """)
@@ -240,6 +240,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 
