@@ -16,8 +16,8 @@ def generer_matrice(villes):
     for i in range(n):
         for j in range(n):
             if i != j:
-                matrice[i][j] = distance(villes[i], villes[j])
-    return matrice
+matrice[i][j] = int(distance(villes[i], villes[j])) 
+return matrice
 
 
 def calcul_energie(etat, matrice_energie):
@@ -242,6 +242,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 
