@@ -16,7 +16,7 @@ def generer_matrice(villes):
     for i in range(n):
         for j in range(n):
             if i != j:
-matrice[i][j] = int(distance(villes[i], villes[j])) 
+     matrice[i][j] = int(distance(villes[i], villes[j])) 
 return matrice
 
 
@@ -242,6 +242,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 
