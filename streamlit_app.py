@@ -140,7 +140,7 @@ Choisissez un *algorithme d’optimisation* et observez comment il trouve le che
 """)
 
 algo = st.selectbox("Choisissez un algorithme :", ["Recuit simulé", "Recherche Tabou", "Algorithme Génétique"])
-nb_villes = st.slider("Nombre de villes :", 4, 15, 😎)
+nb_villes = st.slider("Nombre de villes :", 4, 15)
 
 # Génération des coordonnées
 villes = [(random.uniform(0, 20), random.uniform(0, 20)) for _ in range(nb_villes)]
@@ -172,3 +172,4 @@ if st.button("🚀 Lancer l’algorithme"):
     # --- Visualisation ---
     fig = plot_villes(villes, chemin)
     st.pyplot(fig)
+
